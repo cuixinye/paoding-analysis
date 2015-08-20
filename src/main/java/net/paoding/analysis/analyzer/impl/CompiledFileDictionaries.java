@@ -33,9 +33,8 @@ import net.paoding.analysis.exception.PaodingAnalysisException;
 import net.paoding.analysis.ext.PaodingAnalyzerListener;
 import net.paoding.analysis.knife.CJKKnife;
 import net.paoding.analysis.knife.Dictionaries;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 中文字典缓存根据地,为{@link CJKKnife}所用。<br>
@@ -52,7 +51,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 
 	// -------------------------------------------------
 
-	protected Log log = LogFactory.getLog(this.getClass());
+	private static final Logger log = LoggerFactory.getLogger(CompiledFileDictionaries.class);
 
 	// -------------------------------------------------
 

@@ -15,22 +15,11 @@
  */
 package net.paoding.analysis.knife;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -41,13 +30,12 @@ import net.paoding.analysis.dictionary.support.detection.Difference;
 import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
 import net.paoding.analysis.exception.PaodingAnalysisException;
 import net.paoding.analysis.ext.PaodingAnalyzerListener;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.store.FSLockFactory;
 import org.apache.lucene.store.Lock;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.NativeFSLockFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -60,7 +48,7 @@ public class PaodingMaker {
 	public static final String DEFAULT_PROPERTIES_PATH = "classpath:paoding-analysis.properties";
 
 
-	private static Log log = LogFactory.getLog(PaodingMaker.class);
+	private static final Logger log = LoggerFactory.getLogger(PaodingMaker.class);
 
 	private static ObjectHolder<Properties> propertiesHolder = new ObjectHolder<Properties>();
 

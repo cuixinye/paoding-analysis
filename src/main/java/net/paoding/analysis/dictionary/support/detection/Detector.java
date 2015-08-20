@@ -18,8 +18,8 @@ package net.paoding.analysis.dictionary.support.detection;
 import java.io.File;
 import java.io.FileFilter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Detector implements Runnable {
 
-	private Log log = LogFactory.getLog(this.getClass());
+	private static final Logger log = LoggerFactory.getLogger(Detector.class);
 
 	private DifferenceListener listener;
 
@@ -113,7 +113,7 @@ public class Detector implements Runnable {
 			try {
 				listener.on(diff);
 				log.info("found differen for " + home);
-				log.info(diff);
+				log.info(diff.toString());
 				lastSnapshot = current;
 			} catch (Exception e) {
 				log.error("", e);

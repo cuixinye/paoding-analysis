@@ -15,8 +15,8 @@
  */
 package net.paoding.analysis.knife;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 无实际用处的Knife。用于示例装载Knife并进行属性设置。
@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class FakeKnife implements Knife, DictionariesWare {
 
-	private Log log = LogFactory.getLog(this.getClass());
+	private static final Logger log = LoggerFactory.getLogger(FakeKnife.class);
 
 	private String name;
 

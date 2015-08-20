@@ -17,26 +17,18 @@ package net.paoding.analysis.knife;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import net.paoding.analysis.dictionary.BinaryDictionary;
+import net.paoding.analysis.dictionary.*;
 import net.paoding.analysis.dictionary.Dictionary;
-import net.paoding.analysis.dictionary.HashBinaryDictionary;
-import net.paoding.analysis.dictionary.Hit;
-import net.paoding.analysis.dictionary.Word;
 import net.paoding.analysis.dictionary.support.detection.Detector;
 import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
 import net.paoding.analysis.dictionary.support.detection.ExtensionFileFilter;
 import net.paoding.analysis.dictionary.support.filewords.FileWordsReader;
 import net.paoding.analysis.exception.PaodingAnalysisException;
 import net.paoding.analysis.ext.PaodingAnalyzerListener;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 中文字典缓存根据地,为{@link CJKKnife}所用。<br>
@@ -53,7 +45,7 @@ public class FileDictionaries implements Dictionaries {
 
 	// -------------------------------------------------
 
-	protected Log log = LogFactory.getLog(this.getClass());
+	private static final Logger log = LoggerFactory.getLogger(FileDictionaries.class);
 
 	// -------------------------------------------------
 
@@ -312,7 +304,7 @@ public class FileDictionaries implements Dictionaries {
 	
 	/**
 	 * 
-	 * @param dicName
+	 * @param dicPath path to dictionary
 	 */
 	protected synchronized void refreshDicWords(String dicPath) {
 		int index = dicPath.lastIndexOf(".dic");
