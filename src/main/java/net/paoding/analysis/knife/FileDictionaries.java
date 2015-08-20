@@ -21,9 +21,6 @@ import java.util.*;
 
 import net.paoding.analysis.dictionary.*;
 import net.paoding.analysis.dictionary.Dictionary;
-import net.paoding.analysis.dictionary.support.detection.Detector;
-import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
-import net.paoding.analysis.dictionary.support.detection.ExtensionFileFilter;
 import net.paoding.analysis.dictionary.support.filewords.FileWordsReader;
 import net.paoding.analysis.exception.PaodingAnalysisException;
 import net.paoding.analysis.ext.PaodingAnalyzerListener;
@@ -274,32 +271,6 @@ public class FileDictionaries implements Dictionaries {
 					getCombinatoricsWords());
 		}
 		return combinatoricsDictionary;
-	}
-
-	
-	private Detector detector;
-	
-	public synchronized void startDetecting(int interval, DifferenceListener l) {
-		if (detector != null || interval < 0) {
-			return;
-		}
-		Detector detector = new Detector();
-		detector.setHome(dicHome);
-		detector.setFilter(new ExtensionFileFilter(".dic"));
-		detector.setLastSnapshot(detector.flash());
-		detector.setListener(l);
-		detector.setInterval(interval);
-		detector.start(true);
-		this.detector = detector;
-	}
-
-
-	public synchronized void stopDetecting() {
-		if (detector == null) {
-			return;
-		}
-		detector.setStop();
-		detector = null;
 	}
 	
 	/**

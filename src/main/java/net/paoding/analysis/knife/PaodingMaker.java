@@ -26,8 +26,6 @@ import java.util.jar.JarFile;
 import net.paoding.analysis.Constants;
 import net.paoding.analysis.analyzer.impl.MostWordsModeDictionariesCompiler;
 import net.paoding.analysis.analyzer.impl.SortingDictionariesCompiler;
-import net.paoding.analysis.dictionary.support.detection.Difference;
-import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
 import net.paoding.analysis.exception.PaodingAnalysisException;
 import net.paoding.analysis.ext.PaodingAnalyzerListener;
 import org.apache.lucene.store.FSLockFactory;
@@ -418,25 +416,6 @@ public class PaodingMaker {
 									.readCompliedDictionaries(p);
 							dictionaries.setAnalyzerListener(listener);
 							setDictionaries(finalPaoding, dictionaries);
-
-							// 启动字典动态转载/卸载检测器
-							// 侦测时间间隔(秒)。默认为60秒。如果设置为０或负数则表示不需要进行检测
-							String intervalStr = getProperty(p,
-									Constants.DIC_DETECTOR_INTERVAL);
-							int interval = Integer.parseInt(intervalStr);
-							if (interval > 0) {
-								dictionaries.startDetecting(interval,
-										new DifferenceListener() {
-											public void on(Difference diff)
-													throws Exception {
-												dictionaries.stopDetecting();
-												
-												// 此处调用run方法，以当检测到**编译后**的词典变更/删除/增加时，
-												// 重新编译源词典、重新创建并启动dictionaries自检测
-												run();
-											}
-										});
-							}
 						}
 					} catch (LockObtainFailedException ex) {
 						log.error("Obtain " + LOCK_FILE + " in " + dicHome

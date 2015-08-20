@@ -16,7 +16,6 @@
 package net.paoding.analysis.knife;
 
 import net.paoding.analysis.dictionary.Dictionary;
-import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
 import net.paoding.analysis.ext.PaodingAnalyzerListener;
 
 /**
@@ -71,15 +70,6 @@ public interface Dictionaries {
 	 * @return
 	 */
 	public Dictionary getCombinatoricsDictionary();
-	
-	/**
-	 * 
-	 * @param l
-	 */
-	public void startDetecting(int interval, DifferenceListener l);
-	
-	
-	public void stopDetecting();
 	
 	
 	public abstract void setAnalyzerListener(PaodingAnalyzerListener listener);
