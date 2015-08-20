@@ -15,6 +15,10 @@
  */
 package net.paoding.analysis.analyzer;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Iterator;
+
 import net.paoding.analysis.analyzer.impl.MostWordsTokenCollector;
 import net.paoding.analysis.knife.Beef;
 import net.paoding.analysis.knife.Collector;
@@ -25,11 +29,6 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.apache.lucene.util.BytesRef;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Iterator;
 
 /**
  * PaodingTokenizer是基于“庖丁解牛”框架的TokenStream实现，为PaodingAnalyzer使用。
@@ -163,6 +162,7 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 
 	@Override
 	public boolean incrementToken() throws IOException {
+        clearAttributes();
 		// 已经穷尽tokensIteractor的Token对象，则继续请求reader流入数据
 		while (tokenIteractor == null || !tokenIteractor.hasNext()) {
 			// System.out.println(dissected);

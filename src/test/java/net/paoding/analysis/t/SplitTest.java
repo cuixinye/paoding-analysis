@@ -1,16 +1,18 @@
 package net.paoding.analysis.t;
 
+import java.io.StringReader;
+
 import net.paoding.analysis.analyzer.PaodingAnalyzer;
 import net.paoding.analysis.analyzer.PaodingTokenizer;
 import net.paoding.analysis.analyzer.impl.MaxWordLengthTokenCollector;
 import net.paoding.analysis.knife.Paoding;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.junit.Test;
-
-import java.io.StringReader;
 
 /**
  * <pre>
@@ -41,7 +43,15 @@ public class SplitTest {
                 new Paoding(),
                 new MaxWordLengthTokenCollector());
 
-        System.out.println(tokenizer);
+        PaodingAnalyzer analyzer = new PaodingAnalyzer();
+        TokenStream ts = analyzer.tokenStream("field", txt);
+
+        CharTermAttribute termAtt = ts.addAttribute(CharTermAttribute.class);
+
+        ts.reset();
+        while (ts.incrementToken()) {
+            System.out.println(termAtt.toString());
+        }
     }
 
 
