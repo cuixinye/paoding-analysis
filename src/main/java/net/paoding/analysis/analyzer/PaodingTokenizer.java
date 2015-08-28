@@ -203,7 +203,7 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
             termAtt.append(token);
             offsetAtt.setOffset(correctOffset(token.startOffset()),
                     correctOffset(token.endOffset()));
-            positionIncrementAttribute.setPositionIncrement(token.endOffset());
+            positionIncrementAttribute.setPositionIncrement(1);
             return true;
         }
 		return tokenIteractor.hasNext();
