@@ -9,6 +9,8 @@ import net.paoding.analysis.knife.Paoding;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
@@ -37,7 +39,9 @@ public class SplitTest {
 
     @Test
     public void testSplitChinese() throws Exception {
-        String txt = "汉文化和服装 汉文化";
+        //String txt = "汉文化和服装 汉文化";
+        String txt = "Domnick Hunter 0.01μm 备用过滤器滤芯, 适合制造商OIL-X Plus系列";
+        //String txt = "\u106389H5 en xnexj mgdq";
         PaodingTokenizer tokenizer = new PaodingTokenizer(
                 new StringReader(txt),
                 new Paoding(),
@@ -47,10 +51,14 @@ public class SplitTest {
         TokenStream ts = analyzer.tokenStream("field", txt);
 
         CharTermAttribute termAtt = ts.addAttribute(CharTermAttribute.class);
+        PositionIncrementAttribute posIncAtt = ts.addAttribute(PositionIncrementAttribute.class);
+        OffsetAttribute offsetAtt = ts.addAttribute(OffsetAttribute.class);
 
         ts.reset();
         while (ts.incrementToken()) {
-            System.out.println(termAtt.toString());
+            System.out.println(termAtt.toString() + ":"
+                    + posIncAtt.getPositionIncrement() + ":"
+                    + offsetAtt.startOffset() + "->" + offsetAtt.endOffset());
         }
     }
 

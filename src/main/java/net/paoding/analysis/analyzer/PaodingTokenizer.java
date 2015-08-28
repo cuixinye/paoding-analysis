@@ -108,8 +108,6 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 	 */
 	private Iterator<Token> tokenIteractor;
 
-
-
 	private CharTermAttribute termAtt;
 	private OffsetAttribute offsetAtt;
     private PositionIncrementAttribute positionIncrementAttribute;
@@ -125,7 +123,6 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 	public PaodingTokenizer(Reader input, Knife knife,
 			TokenCollector tokenCollector) {
 		super(input);
-		this.input = input;
 		this.knife = knife;
 		this.tokenCollector = tokenCollector;
 		init();
@@ -177,9 +174,9 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 				if (remainning > 0) {
 					System.arraycopy(buffer, -dissected, buffer, 0, remainning);
 				}
-				read = input
-						.read(buffer, remainning, bufferLength - remainning);
-				inputLength += read;
+				read = input.read(buffer, remainning, bufferLength - remainning);
+                if (read > 0)
+				    inputLength += read;
 				int charCount = remainning + read;
 				if (charCount < 0) {
 					// reader已尽，按接口next()要求返回null.
@@ -212,11 +209,20 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 		return tokenIteractor.hasNext();
 	}
 
-	@Override
+    @Override
 	public void reset() throws IOException {
 		super.reset();
 		offset = 0;
 		inputLength = 0;
         tokenIteractor = null;
+        dissected = 0;
+        beef.set(0, 0);
 	}
+
+    @Override
+    public void end() throws IOException {
+        super.end();
+        int finalOffset = correctOffset(inputLength);
+        offsetAtt.setOffset(finalOffset, finalOffset);
+    }
 }
