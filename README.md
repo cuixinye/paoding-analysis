@@ -1,6 +1,7 @@
 #Paoding分词器基于Lucene4.x
 
-原项目见 https://code.google.com/p/paoding/
+Flax version of Paoding Chinese Analyzer, forked from
+http://git.oschina.net/zhzhenqin/paoding-analysis
 
 #Paoding Analysis摘要
 
