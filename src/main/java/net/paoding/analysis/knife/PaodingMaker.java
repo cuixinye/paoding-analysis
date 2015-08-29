@@ -16,7 +16,6 @@
 package net.paoding.analysis.knife;
 
 import java.io.*;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -28,10 +27,6 @@ import net.paoding.analysis.analyzer.impl.MostWordsModeDictionariesCompiler;
 import net.paoding.analysis.analyzer.impl.SortingDictionariesCompiler;
 import net.paoding.analysis.exception.PaodingAnalysisException;
 import net.paoding.analysis.ext.PaodingAnalyzerListener;
-import org.apache.lucene.store.FSLockFactory;
-import org.apache.lucene.store.Lock;
-import org.apache.lucene.store.LockObtainFailedException;
-import org.apache.lucene.store.NativeFSLockFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +44,6 @@ public class PaodingMaker {
 	private static final Logger log = LoggerFactory.getLogger(PaodingMaker.class);
 
 	private static ObjectHolder<Properties> propertiesHolder = new ObjectHolder<Properties>();
-
-	private static ObjectHolder<Paoding> paodingHolder = new ObjectHolder<Paoding>();
 
 	public static PaodingAnalyzerListener listener = null;
 	
@@ -132,7 +125,6 @@ public class PaodingMaker {
 			if (p == null || modified(p)) {
 				p = loadProperties(new Properties(), path);
 				propertiesHolder.set(path, p);
-				paodingHolder.remove(path);
 				postPropertiesLoaded(p);
 				String absolutePaths = p
 						.getProperty("paoding.analysis.properties.files.absolutepaths");
@@ -350,8 +342,7 @@ public class PaodingMaker {
 	}
 
 	private static Paoding implMake(final Properties p) {
-		// 将要返回的Paoding对象，它可能是新创建的，也可能使用paodingHolder中已有的Paoding对象
-		Paoding paoding;
+
 		// 作为本次返回的Paoding对象在paodingHolder中的key，使之后同样的key不会重复创建Paoding对象
 		final Object paodingKey;
 		// 如果该属性对象是通过PaodingMaker由文件读入的，则必然存在paoding.dic.properties.path属性
@@ -364,13 +355,8 @@ public class PaodingMaker {
 		} else {
 			paodingKey = p;
 		}
-		paoding = paodingHolder.get(paodingKey);
-		if (paoding != null) {
-			return paoding;
-		}
-		try {
-			paoding = createPaodingWithKnives(p);
-			final Paoding finalPaoding = paoding;
+
+        try {
 			//
 			String compilerClassName = getProperty(p,
 					Constants.ANALYZER_DICTIONARIES_COMPILER);
@@ -387,128 +373,40 @@ public class PaodingMaker {
 					compilerClass = SortingDictionariesCompiler.class;
 				}
 			}
-			final DictionariesCompiler compiler = (DictionariesCompiler) compilerClass
-					.newInstance();
-			new Function() {
-				public void run() throws Exception {
-					String LOCK_FILE = "write.lock";
-					String dicHome = p
-							.getProperty("paoding.dic.home.absolute.path");
-					FSLockFactory FileLockFactory = new NativeFSLockFactory(
-							dicHome);
-					Lock lock = FileLockFactory.makeLock(LOCK_FILE);
 
-					boolean obtained = false;
-					try {
-						obtained = lock.obtain(90000);
-						if (obtained) {
-							// 编译词典-对词典进行可能的处理，以符合分词器的要求
-							if (compiler.shouldCompile(p)) {
-								Dictionaries dictionaries = readUnCompiledDictionaries(p);
-								dictionaries.setAnalyzerListener(listener);
-								Paoding tempPaoding = createPaodingWithKnives(p);
-								setDictionaries(tempPaoding, dictionaries);
-								compiler.compile(dictionaries, tempPaoding, p);
-							}
+            final DictionariesCompiler compiler = (DictionariesCompiler) compilerClass.newInstance();
 
-							// 使用编译后的词典
-							final Dictionaries dictionaries = compiler
-									.readCompliedDictionaries(p);
-							dictionaries.setAnalyzerListener(listener);
-							setDictionaries(finalPaoding, dictionaries);
-						}
-					} catch (LockObtainFailedException ex) {
-						log.error("Obtain " + LOCK_FILE + " in " + dicHome
-								+ " failed:" + ex.getMessage());
-						throw ex;
-					} catch (IOException ex) {
-						log.error("Obtain " + LOCK_FILE + " in " + dicHome
-								+ " failed:" + ex.getMessage());
-						throw ex;
-					} finally {
-						if (obtained) {
-							try {
-								lock.release();
-							} catch (Exception ex) {
+            // 编译词典-对词典进行可能的处理，以符合分词器的要求
+            if (compiler.shouldCompile(p)) {
+                Dictionaries dictionaries = readUnCompiledDictionaries(p);
+                dictionaries.setAnalyzerListener(listener);
+                Paoding tempPaoding = createPaodingWithKnives(dictionaries);
+                compiler.compile(dictionaries, tempPaoding, p);
+                return tempPaoding;
+            }
 
-							}
-						}
-					}
-				}
-			}.run();
-			// Paoding对象创建成功！此时可以将它寄放到paodingHolder中，给下次重复利用
-			paodingHolder.set(paodingKey, paoding);
-			return paoding;
-		} catch (Exception e) {
+            // 使用编译后的词典
+            final Dictionaries dictionaries = compiler.readCompliedDictionaries(p);
+            dictionaries.setAnalyzerListener(listener);
+            return createPaodingWithKnives(dictionaries);
+
+        } catch (Exception e) {
 			throw new PaodingAnalysisException("", e);
 		}
 	}
 
-	private static Paoding createPaodingWithKnives(Properties p)
+	private static Paoding createPaodingWithKnives(Dictionaries dictionaries)
 			throws Exception {
 		// 如果PaodingHolder中并没有缓存该属性文件或对象对应的Paoding对象，
 		// 则根据给定的属性创建一个新的Paoding对象，并在返回之前存入paodingHolder
 		Paoding paoding = new Paoding();
 
 		// 寻找传说中的Knife。。。。
-		final Map<String, Knife> knifeMap = new HashMap<String,Knife>();
 		final List<Knife> knifeList = new LinkedList<Knife>();
-		final List<Function>functions = new LinkedList<Function>();
-		Iterator<Map.Entry<Object, Object>> iter = p.entrySet().iterator();
-		while (iter.hasNext()) {
-			Map.Entry<Object, Object> e = iter.next();
-			final String key = (String) e.getKey();
-			final String value = (String) e.getValue();
-			int index = key.indexOf(Constants.KNIFE_CLASS);
-			if (index == 0 && key.length() > Constants.KNIFE_CLASS.length()) {
-				final int end = key
-						.indexOf('.', Constants.KNIFE_CLASS.length());
-				if (end == -1) {
-					Class<?> clazz = Class.forName(value);
-					Knife knife = (Knife) clazz.newInstance();
-					knifeList.add(knife);
-					knifeMap.put(key, knife);
-					log.info("add knike: " + value);
-				} else {
-					// 由于属性对象属于hash表，key的读取顺序不和文件的顺序一致，不能保证属性设置时，knife对象已经创建
-					// 所以这里只定义函数放到functions中，待到所有的knife都创建之后，在执行该程序
-					functions.add(new Function() {
-						public void run() throws Exception {
-							String knifeName = key.substring(0, end);
-							Object obj = knifeMap.get(knifeName);
-							if (!obj
-									.getClass()
-									.getName()
-									.equals(
-											"org.springframework.beans.BeanWrapperImpl")) {
-								Class<?> beanWrapperImplClass = Class
-										.forName("org.springframework.beans.BeanWrapperImpl");
-								Method setWrappedInstance = beanWrapperImplClass
-										.getMethod("setWrappedInstance",
-												new Class[] { Object.class });
-								Object beanWrapperImpl = beanWrapperImplClass
-										.newInstance();
-								setWrappedInstance.invoke(beanWrapperImpl,
-										new Object[] { obj });
-								knifeMap.put(knifeName, (Knife) beanWrapperImpl);
-								obj = beanWrapperImpl;
-							}
-							String propertyName = key.substring(end + 1);
-							Method setPropertyValue = obj.getClass().getMethod(
-									"setPropertyValue",
-									new Class[] { String.class, Object.class });
-							setPropertyValue.invoke(obj, new Object[] {
-									propertyName, value });
-						}
-					});
-				}
-			}
-		}
-		// 完成所有留后执行的程序
-		for (Iterator<Function> iterator = functions.iterator(); iterator.hasNext();) {
-			Function function = (Function) iterator.next();
-			function.run();
-		}
+        knifeList.add(new CJKKnife(dictionaries));
+        knifeList.add(new NumberKnife(dictionaries));
+        knifeList.add(new LetterKnife(dictionaries));
+
 		// 把刀交给庖丁
 		paoding.setKnives(knifeList);
 		return paoding;
@@ -528,15 +426,6 @@ public class PaodingMaker {
 				skipPrefix, noiseCharactor, noiseWord, unit,
 				confucianFamilyName, combinatorics, charsetName, maxWordLen);
 		return dictionaries;
-	}
-
-	private static void setDictionaries(Paoding paoding,
-			Dictionaries dictionaries) {
-		for (Knife knife : paoding.getKnives()) {
-			if (knife instanceof DictionariesWare) {
-				((DictionariesWare) knife).setDictionaries(dictionaries);
-			}
-		}
 	}
 	
 	private static String getUrlPath(URL url){

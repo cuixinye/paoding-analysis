@@ -25,22 +25,14 @@ import net.paoding.analysis.dictionary.Hit;
  * @author Zhiliang Wang [qieqie.wang@gmail.com]
  * 
  */
-public class NumberKnife extends CombinatoricsKnife implements DictionariesWare {
+public class NumberKnife extends CombinatoricsKnife {
 
-	private Dictionary units;
-	
-	public NumberKnife() {
-	}
+	private final Dictionary units;
 
 	public NumberKnife(Dictionaries dictionaries) {
-		setDictionaries(dictionaries);
+		super(dictionaries);
+        this.units = dictionaries.getUnitsDictionary();
 	}
-
-	public void setDictionaries(Dictionaries dictionaries) {
-		super.setDictionaries(dictionaries);
-		units = dictionaries.getUnitsDictionary();
-	}
-	
 
 	public int assignable(Beef beef, int offset, int index) {
 		char ch = beef.charAt(index);

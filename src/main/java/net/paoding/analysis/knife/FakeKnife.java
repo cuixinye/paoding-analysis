@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * @since 2.0.2
  */
 
-public class FakeKnife implements Knife, DictionariesWare {
+public class FakeKnife implements Knife {
 
 	private static final Logger log = LoggerFactory.getLogger(FakeKnife.class);
 

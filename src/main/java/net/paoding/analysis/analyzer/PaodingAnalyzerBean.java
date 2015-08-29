@@ -35,7 +35,7 @@ public class PaodingAnalyzerBean extends Analyzer {
 	 * @see net.paoding.analysis.analyzer.PaodingTokenizer#incrementToken()
 	 * 
 	 */
-	private Knife knife;
+	private final Knife knife;
 
 	/**
 	 * @see #MOST_WORDS_MODE
@@ -48,13 +48,8 @@ public class PaodingAnalyzerBean extends Analyzer {
 	 */
 	private Class<?> modeClass;
 
-	// -------------------------------------------------
-
-	public PaodingAnalyzerBean() {
-	}
 
 	/**
-	 * @see #setKnife(Knife)
 	 * @param knife
 	 */
 	public PaodingAnalyzerBean(Knife knife) {
@@ -62,7 +57,6 @@ public class PaodingAnalyzerBean extends Analyzer {
 	}
 
 	/**
-	 * @see #setKnife(Knife)
 	 * @see #setMode(int)
 	 * @param knife
 	 * @param mode
@@ -73,7 +67,6 @@ public class PaodingAnalyzerBean extends Analyzer {
 	}
 
 	/**
-	 * @see #setKnife(Knife)
 	 * @see #setMode(int)
 	 * @param knife
 	 * @param mode
@@ -121,10 +114,6 @@ public class PaodingAnalyzerBean extends Analyzer {
 
     public Knife getKnife() {
         return knife;
-    }
-
-    public void setKnife(Knife knife) {
-        this.knife = knife;
     }
 
     public int getMode() {

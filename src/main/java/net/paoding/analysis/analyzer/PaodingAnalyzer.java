@@ -20,7 +20,6 @@ import java.util.Properties;
 import net.paoding.analysis.Constants;
 import net.paoding.analysis.analyzer.estimate.TryPaodingAnalyzer;
 import net.paoding.analysis.knife.Knife;
-import net.paoding.analysis.knife.Paoding;
 import net.paoding.analysis.knife.PaodingMaker;
 
 /**
@@ -56,10 +55,10 @@ public class PaodingAnalyzer extends PaodingAnalyzerBean {
 	 * @param propertiesPath null表示使用类路径下的paoding-analysis.properties
 	 */
 	public PaodingAnalyzer(String propertiesPath) {
-		init(propertiesPath);
+		super(initKnife(propertiesPath));
 	}
 
-	protected void init(String propertiesPath) {
+	private static Knife initKnife(String propertiesPath) {
 		// 根据PaodingMaker说明，
 		// 1、多次调用getProperties()，返回的都是同一个properties实例(只要属性文件没发生过修改)
 		// 2、相同的properties实例，PaodingMaker也将返回同一个Paoding实例
@@ -70,9 +69,7 @@ public class PaodingAnalyzer extends PaodingAnalyzerBean {
 		Properties properties = PaodingMaker.getProperties(propertiesPath);
 		String mode = Constants
 				.getProperty(properties, Constants.ANALYZER_MODE);
-		Paoding paoding = PaodingMaker.make(properties);
-		setKnife(paoding);
-		setMode(mode);
+        return PaodingMaker.make(properties);
 	}
 
 	/**

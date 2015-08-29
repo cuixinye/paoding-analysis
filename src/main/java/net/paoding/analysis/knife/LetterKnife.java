@@ -30,12 +30,12 @@ public class LetterKnife extends CombinatoricsKnife {
 			"www" };
 
 	
-	public LetterKnife() {
-		super(DEFAULT_NOISE);
+	public LetterKnife(Dictionaries dictionaries) {
+		super(dictionaries, DEFAULT_NOISE);
 	}
 
-	public LetterKnife(String[] noiseWords) {
-		super(noiseWords);
+	public LetterKnife(Dictionaries dictionaries, String... noiseWords) {
+		super(dictionaries, noiseWords);
 	}
 
 	public int assignable(Beef beef, int offset, int index) {

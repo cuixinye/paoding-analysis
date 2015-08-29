@@ -26,29 +26,20 @@ import net.paoding.analysis.dictionary.Word;
  * @since 1.0
  * 
  */
-public class CJKKnife implements Knife, DictionariesWare {
+public class CJKKnife implements Knife {
 
 	// -------------------------------------------------
 
-	private Dictionary vocabulary;
-	private Dictionary noiseWords;
-	private Dictionary noiseCharactors;
-	private Dictionary units;
-
-	// -------------------------------------------------
-
-	public CJKKnife() {
-	}
+	private final Dictionary vocabulary;
+	private final Dictionary noiseWords;
+	private final Dictionary noiseCharactors;
+	private final Dictionary units;
 
 	public CJKKnife(Dictionaries dictionaries) {
-		setDictionaries(dictionaries);
-	}
-
-	public void setDictionaries(Dictionaries dictionaries) {
-		vocabulary = dictionaries.getVocabularyDictionary();
-		noiseWords = dictionaries.getNoiseWordsDictionary();
-		noiseCharactors = dictionaries.getNoiseCharactorsDictionary();
-		units = dictionaries.getUnitsDictionary();
+        vocabulary = dictionaries.getVocabularyDictionary();
+        noiseWords = dictionaries.getNoiseWordsDictionary();
+        noiseCharactors = dictionaries.getNoiseCharactorsDictionary();
+        units = dictionaries.getUnitsDictionary();
 	}
 
 	// -------------------------------------------------

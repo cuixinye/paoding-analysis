@@ -15,6 +15,7 @@
  */
 package net.paoding.analysis.knife;
 
+import java.util.Collections;
 import java.util.HashSet;
 
 import net.paoding.analysis.dictionary.Dictionary;
@@ -32,28 +33,15 @@ import net.paoding.analysis.dictionary.Hit;
  * @since 1.0
  * 
  */
-public abstract class CombinatoricsKnife implements Knife, DictionariesWare {
+public abstract class CombinatoricsKnife implements Knife {
 
-	protected Dictionary combinatoricsDictionary;
+	protected final Dictionary combinatoricsDictionary;
 
-	protected HashSet<String> noiseTable;
+	protected final HashSet<String> noiseTable = new HashSet<String>();
 
-	public CombinatoricsKnife() {
-	}
-
-	public CombinatoricsKnife(String[] noiseWords) {
-		setNoiseWords(noiseWords);
-	}
-
-	public void setNoiseWords(String[] noiseWords) {
-		noiseTable = new HashSet<String>((int) (noiseWords.length * 1.5));
-		for (int i = 0; i < noiseWords.length; i++) {
-			noiseTable.add(noiseWords[i]);
-		}
-	}
-
-	public void setDictionaries(Dictionaries dictionaries) {
-		combinatoricsDictionary = dictionaries.getCombinatoricsDictionary();
+	public CombinatoricsKnife(Dictionaries dictionaries, String... noiseWords) {
+		this.combinatoricsDictionary = dictionaries.getCombinatoricsDictionary();
+        Collections.addAll(noiseTable, noiseWords);
 	}
 
 	public int dissect(Collector collector, Beef beef, int offset) {
