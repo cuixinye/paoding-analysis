@@ -1,13 +1,10 @@
 package net.paoding.analysis.analyzer;
 
 import java.io.Reader;
-import java.util.Properties;
 
-import net.paoding.analysis.Constants;
 import net.paoding.analysis.analyzer.impl.MaxWordLengthTokenCollector;
 import net.paoding.analysis.analyzer.impl.MostWordsTokenCollector;
 import net.paoding.analysis.knife.Knife;
-
 import net.paoding.analysis.knife.PaodingMaker;
 import org.apache.lucene.analysis.Analyzer;
 
@@ -47,7 +44,7 @@ public class PaodingAnalyzer extends Analyzer {
 	private final int mode;
 
     public PaodingAnalyzer() {
-        this(initKnife(PaodingMaker.DEFAULT_PROPERTIES_PATH));
+        this(PaodingMaker.make(PaodingMaker.DEFAULT_PROPERTIES_PATH));
     }
 
 	/**
@@ -65,20 +62,6 @@ public class PaodingAnalyzer extends Analyzer {
 		this.knife = knife;
 		this.mode = mode;
 	}
-
-    private static Knife initKnife(String propertiesPath) {
-        // 根据PaodingMaker说明，
-        // 1、多次调用getProperties()，返回的都是同一个properties实例(只要属性文件没发生过修改)
-        // 2、相同的properties实例，PaodingMaker也将返回同一个Paoding实例
-        // 根据以上1、2点说明，在此能够保证多次创建PaodingAnalyzer并不会多次装载属性文件和词典
-        if (propertiesPath == null) {
-            propertiesPath = PaodingMaker.DEFAULT_PROPERTIES_PATH;
-        }
-        Properties properties = PaodingMaker.getProperties(propertiesPath);
-        String mode = Constants
-                .getProperty(properties, Constants.ANALYZER_MODE);
-        return PaodingMaker.make(properties);
-    }
 
 	@Override
 	protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
