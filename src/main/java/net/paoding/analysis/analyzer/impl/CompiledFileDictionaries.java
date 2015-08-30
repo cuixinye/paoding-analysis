@@ -16,7 +16,6 @@
 package net.paoding.analysis.analyzer.impl;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -28,7 +27,6 @@ import net.paoding.analysis.dictionary.HashBinaryDictionary;
 import net.paoding.analysis.dictionary.Word;
 import net.paoding.analysis.dictionary.support.filewords.FileWordsReader;
 import net.paoding.analysis.exception.PaodingAnalysisException;
-import net.paoding.analysis.ext.PaodingAnalyzerListener;
 import net.paoding.analysis.knife.CJKKnife;
 import net.paoding.analysis.knife.Dictionaries;
 import org.slf4j.Logger;
@@ -96,11 +94,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 	protected String charsetName;
 	protected int maxWordLen;
 
-	private PaodingAnalyzerListener listener = null;
 	// ----------------------
-
-	public CompiledFileDictionaries() {
-	}
 
 	public CompiledFileDictionaries(String dicHome, String noiseCharactor,
 			String noiseWord, String unit, String confucianFamilyName,
@@ -113,70 +107,6 @@ public class CompiledFileDictionaries implements Dictionaries {
 		this.combinatorics = combinatorics;
 		this.charsetName = charsetName;
 		this.maxWordLen = maxWordLen;
-	}
-
-	public String getDicHome() {
-		return dicHome;
-	}
-
-	public void setDicHome(String dicHome) {
-		this.dicHome = dicHome;
-	}
-
-	public String getNoiseCharactor() {
-		return noiseCharactor;
-	}
-
-	public void setNoiseCharactor(String noiseCharactor) {
-		this.noiseCharactor = noiseCharactor;
-	}
-
-	public String getNoiseWord() {
-		return noiseWord;
-	}
-
-	public void setNoiseWord(String noiseWord) {
-		this.noiseWord = noiseWord;
-	}
-
-	public String getUnit() {
-		return unit;
-	}
-
-	public void setUnit(String unit) {
-		this.unit = unit;
-	}
-
-	public String getConfucianFamilyName() {
-		return confucianFamilyName;
-	}
-
-	public void setConfucianFamilyName(String confucianFamilyName) {
-		this.confucianFamilyName = confucianFamilyName;
-	}
-
-	public String getCharsetName() {
-		return charsetName;
-	}
-
-	public void setCharsetName(String charsetName) {
-		this.charsetName = charsetName;
-	}
-
-	public int getMaxWordLen() {
-		return maxWordLen;
-	}
-
-	public void setMaxWordLen(int maxWordLen) {
-		this.maxWordLen = maxWordLen;
-	}
-
-    public void setLantinFllowedByCjk(String lantinFllowedByCjk) {
-		this.combinatorics = lantinFllowedByCjk;
-	}
-
-	public String getLantinFllowedByCjk() {
-		return combinatorics;
 	}
 
 	// -------------------------------------------------
@@ -263,15 +193,9 @@ public class CompiledFileDictionaries implements Dictionaries {
 			return new Word[0];
 		}
 		try {
-			if(this.listener != null){
-				this.listener.readCompileDic(f.getAbsolutePath());
-			}
 			Map<String, Collection<Word>> map = FileWordsReader.readWords(f.getAbsolutePath(),
 					charsetName, maxWordLen, LinkedList.class, ".dic.compiled");
 			Collection<Word> wordsList = map.values().iterator().next();
-			if(this.listener != null){
-				this.listener.readCompileDicFinished(f.getAbsolutePath(), wordsList);
-			}
 			return (Word[]) wordsList.toArray(new Word[wordsList.size()]);
 		} catch (IOException e) {
 			throw toRuntimeException(e);
@@ -308,9 +232,5 @@ public class CompiledFileDictionaries implements Dictionaries {
 	protected RuntimeException toRuntimeException(IOException e) {
 		return new PaodingAnalysisException(e);
 	}
-	
-	public void setAnalyzerListener(PaodingAnalyzerListener listener) {
-		this.listener = listener;
-		
-	}
+
 }

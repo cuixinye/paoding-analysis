@@ -16,7 +16,6 @@
 package net.paoding.analysis.knife;
 
 import net.paoding.analysis.dictionary.Dictionary;
-import net.paoding.analysis.ext.PaodingAnalyzerListener;
 
 /**
  * 中文字典缓存根据地,为{@link CJKKnife}所用。<br>
@@ -70,7 +69,5 @@ public interface Dictionaries {
 	 * @return
 	 */
 	public Dictionary getCombinatoricsDictionary();
-	
-	
-	public abstract void setAnalyzerListener(PaodingAnalyzerListener listener);
+
 }

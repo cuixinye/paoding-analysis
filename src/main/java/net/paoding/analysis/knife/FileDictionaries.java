@@ -15,7 +15,6 @@
  */
 package net.paoding.analysis.knife;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -23,7 +22,6 @@ import net.paoding.analysis.dictionary.*;
 import net.paoding.analysis.dictionary.Dictionary;
 import net.paoding.analysis.dictionary.support.filewords.FileWordsReader;
 import net.paoding.analysis.exception.PaodingAnalysisException;
-import net.paoding.analysis.ext.PaodingAnalyzerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,11 +90,8 @@ public class FileDictionaries implements Dictionaries {
 	protected String charsetName;
 	protected int maxWordLen;
 
-	private PaodingAnalyzerListener listener = null;
 	// ----------------------
 
-	public FileDictionaries() {
-	}
 
 	public FileDictionaries(String dicHome, String skipPrefix,
 			String noiseCharactor, String noiseWord, String unit,
@@ -110,78 +105,6 @@ public class FileDictionaries implements Dictionaries {
 		this.combinatorics = combinatorics;
 		this.charsetName = charsetName;
 		this.maxWordLen = maxWordLen;
-	}
-
-	public String getDicHome() {
-		return dicHome;
-	}
-
-	public void setDicHome(String dicHome) {
-		this.dicHome = dicHome;
-	}
-
-	public String getSkipPrefix() {
-		return skipPrefix;
-	}
-
-	public void setSkipPrefix(String skipPrefix) {
-		this.skipPrefix = skipPrefix;
-	}
-
-	public String getNoiseCharactor() {
-		return noiseCharactor;
-	}
-
-	public void setNoiseCharactor(String noiseCharactor) {
-		this.noiseCharactor = noiseCharactor;
-	}
-
-	public String getNoiseWord() {
-		return noiseWord;
-	}
-
-	public void setNoiseWord(String noiseWord) {
-		this.noiseWord = noiseWord;
-	}
-
-	public String getUnit() {
-		return unit;
-	}
-
-	public void setUnit(String unit) {
-		this.unit = unit;
-	}
-
-	public String getConfucianFamilyName() {
-		return confucianFamilyName;
-	}
-
-	public void setConfucianFamilyName(String confucianFamilyName) {
-		this.confucianFamilyName = confucianFamilyName;
-	}
-
-	public String getCharsetName() {
-		return charsetName;
-	}
-
-	public void setCharsetName(String charsetName) {
-		this.charsetName = charsetName;
-	}
-
-	public int getMaxWordLen() {
-		return maxWordLen;
-	}
-
-	public void setMaxWordLen(int maxWordLen) {
-		this.maxWordLen = maxWordLen;
-	}
-
-	public void setLantinFllowedByCjk(String lantinFllowedByCjk) {
-		this.combinatorics = lantinFllowedByCjk;
-	}
-
-	public String getLantinFllowedByCjk() {
-		return combinatorics;
 	}
 
 	// -------------------------------------------------
@@ -272,58 +195,6 @@ public class FileDictionaries implements Dictionaries {
 		}
 		return combinatoricsDictionary;
 	}
-	
-	/**
-	 * 
-	 * @param dicPath path to dictionary
-	 */
-	protected synchronized void refreshDicWords(String dicPath) {
-		int index = dicPath.lastIndexOf(".dic");
-		String dicName = dicPath.substring(0, index);
-		if (allWords != null) {
-			try {
-				Map<String, Set<Word>> temp = FileWordsReader
-						.readWords(dicHome + dicPath, charsetName, maxWordLen);
-				Set<Word> conllec = temp.values().iterator().next();
-				if(this.listener != null){
-					this.listener.refreshDic(dicHome + dicPath, conllec);
-				}
-				allWords.put(dicName, conllec);
-			} catch (FileNotFoundException e) {
-				// 如果源文件已经被删除了，则表示该字典不要了
-				allWords.remove(dicName);
-			} catch (IOException e) {
-				throw toRuntimeException(e);
-			}
-			if (!isSkipForVacabulary(dicName)) {
-				this.vocabularyDictionary = null;
-			}
-			// 如果来的是noiseWord
-			if (isNoiseWordDicFile(dicName)) {
-				this.noiseWordsDictionary = null;
-				// noiseWord和vocabulary有关，所以需要更新vocabulary
-				this.vocabularyDictionary = null;
-			}
-			// 如果来的是noiseCharactors
-			else if (isNoiseCharactorDicFile(dicName)) {
-				this.noiseCharactorsDictionary = null;
-				// noiseCharactorsDictionary和vocabulary有关，所以需要更新vocabulary
-				this.vocabularyDictionary = null;
-			}
-			// 如果来的是单元
-			else if (isUnitDicFile(dicName)) {
-				this.unitsDictionary = null;
-			}
-			// 如果来的是亚洲人人姓氏
-			else if (isConfucianFamilyNameDicFile(dicName)) {
-				this.confucianFamilyNamesDictionary = null;
-			}
-			// 如果来的是以字母,数字等组合类语言为开头的词汇
-			else if (isLantinFollowedByCjkDicFile(dicName)) {
-				this.combinatoricsDictionary = null;
-			}
-		}
-	}
 
 	// ---------------------------------------------------------------
 	// 以下为辅助性的方式-类私有或package私有
@@ -362,9 +233,6 @@ public class FileDictionaries implements Dictionaries {
 				set.addAll(dic);
 			}
 		}
-		if(this.listener != null){
-			this.listener.readDicFinished(dicHome, set);
-		}
 		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
 		Arrays.sort(words);
 		return words;
@@ -394,17 +262,11 @@ public class FileDictionaries implements Dictionaries {
 		Map<String, Set<Word>> dics;
 		String dicPath = dicHome + "/" + dicNameRelativeDicHome + ".dic";
 		try {
-			if(this.listener != null){
-				this.listener.readDic(dicPath);
-			}
 			dics = FileWordsReader.readWords(dicPath, charsetName, maxWordLen);
 		} catch (IOException e) {
 			throw toRuntimeException(e);
 		}
 		Set<Word> set = dics.get(dicNameRelativeDicHome);
-		if(this.listener != null){
-			this.listener.readDicFinished(dicPath, set);
-		}
 		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
 		Arrays.sort(words);
 		return words;
@@ -420,9 +282,6 @@ public class FileDictionaries implements Dictionaries {
 		if (allWords == null) {
 			try {
 				log.info("loading dictionaries from " + dicHome);
-				if(this.listener != null){
-					this.listener.readDic(dicHome);
-				}
 				allWords = FileWordsReader.readWords(dicHome, charsetName, maxWordLen);
 				if (allWords.size() == 0) {
 					String message = "Not found any dictionary files, have you set the 'paoding.dic.home' right? ("
@@ -445,34 +304,10 @@ public class FileDictionaries implements Dictionaries {
 				|| dicNameRelativeDicHome.indexOf("/" + skipPrefix) != -1;
 	}
 
-	protected boolean isUnitDicFile(String dicName) {
-		return dicName.equals(this.unit);
-	}
-
-	protected boolean isNoiseCharactorDicFile(String dicName) {
-		return dicName.equals(this.noiseCharactor);
-	}
-
-	protected boolean isNoiseWordDicFile(String dicName) {
-		return dicName.equals(this.noiseWord);
-	}
-
-	protected boolean isConfucianFamilyNameDicFile(String dicName) {
-		return dicName.equals(this.confucianFamilyName);
-	}
-
-	protected boolean isLantinFollowedByCjkDicFile(String dicName) {
-		return dicName.equals(this.combinatorics);
-	}
-
 	// --------------------------------------
 
 	protected RuntimeException toRuntimeException(IOException e) {
 		return new PaodingAnalysisException(e);
 	}
 
-	public void setAnalyzerListener(PaodingAnalyzerListener listener) {
-		this.listener = listener;
-		
-	}
 }
