@@ -26,7 +26,6 @@ import net.paoding.analysis.Constants;
 import net.paoding.analysis.analyzer.impl.MostWordsModeDictionariesCompiler;
 import net.paoding.analysis.analyzer.impl.SortingDictionariesCompiler;
 import net.paoding.analysis.exception.PaodingAnalysisException;
-import net.paoding.analysis.ext.PaodingAnalyzerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +41,6 @@ public class PaodingMaker {
 
 
 	private static final Logger log = LoggerFactory.getLogger(PaodingMaker.class);
-
-	private static ObjectHolder<Properties> propertiesHolder = new ObjectHolder<Properties>();
-
-	public static PaodingAnalyzerListener listener = null;
 	
 //	private static Dictionaries outDictionaries = null;
 	
@@ -109,50 +104,17 @@ public class PaodingMaker {
 	public static Properties getProperties() {
 		return getProperties(DEFAULT_PROPERTIES_PATH);
 	}
-	
-	
-	public static void setAnalyzerListener(PaodingAnalyzerListener listener) {
-		PaodingMaker.listener = listener;
-	}
 
 	public static Properties getProperties(String path) {
 		if (path == null) {
 			throw new NullPointerException("path should not be null!");
 		}
 		try {
-			//
-			Properties p = (Properties) propertiesHolder.get(path);
-			if (p == null || modified(p)) {
-				p = loadProperties(new Properties(), path);
-				propertiesHolder.set(path, p);
-				postPropertiesLoaded(p);
-				String absolutePaths = p
-						.getProperty("paoding.analysis.properties.files.absolutepaths");
-				log.info("config paoding analysis from: " + absolutePaths);
-			}
+            Properties p = loadProperties(new Properties(), path);
 			return p;
 		} catch (IOException e) {
 			throw new PaodingAnalysisException(e);
 		}
-	}
-
-	// -------------------私有 或 辅助方法----------------------------------
-
-	private static boolean modified(Properties p) throws IOException {
-		String lastModifieds = p
-				.getProperty("paoding.analysis.properties.lastModifieds");
-		String[] lastModifedsArray = lastModifieds.split(";");
-		String files = p.getProperty("paoding.analysis.properties.files");
-		String[] filesArray = files.split(";");
-		for (int i = 0; i < filesArray.length; i++) {
-			File file = getFile(filesArray[i]);
-			if (file.exists()
-					&& !String.valueOf(getFileLastModified(file)).equals(
-							lastModifedsArray[i])) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static Properties loadProperties(Properties p, String path)
@@ -284,7 +246,7 @@ public class PaodingMaker {
 		// 此时只有当属性文件没有配置paoding.dic.home时才会采用环境变量的配置
 		String dicHomeBySystemEnv = null;
 		try {
-			dicHomeBySystemEnv = getSystemEnv(Constants.ENV_PAODING_DIC_HOME);
+			dicHomeBySystemEnv = System.getenv(Constants.ENV_PAODING_DIC_HOME);
 		} catch (Error e) {
 			log.warn("System.getenv() is not supported in JDK1.4. ");
 		}
@@ -366,7 +328,6 @@ public class PaodingMaker {
             // 编译词典-对词典进行可能的处理，以符合分词器的要求
             if (compiler.shouldCompile(p)) {
                 Dictionaries dictionaries = readUnCompiledDictionaries(p);
-                dictionaries.setAnalyzerListener(listener);
                 Paoding tempPaoding = createPaodingWithKnives(dictionaries);
                 compiler.compile(dictionaries, tempPaoding, p);
                 return tempPaoding;
@@ -374,7 +335,6 @@ public class PaodingMaker {
 
             // 使用编译后的词典
             final Dictionaries dictionaries = compiler.readCompliedDictionaries(p);
-            dictionaries.setAnalyzerListener(listener);
             return createPaodingWithKnives(dictionaries);
 
         } catch (Exception e) {
@@ -409,10 +369,9 @@ public class PaodingMaker {
 		String combinatorics = getProperty(p, Constants.DIC_FOR_COMBINATORICS);
 		String charsetName = getProperty(p, Constants.DIC_CHARSET);
 		int maxWordLen = Integer.valueOf(getProperty(p, Constants.DIC_MAXWORDLEN));
-		Dictionaries dictionaries = new FileDictionaries(getDicHome(p),
-				skipPrefix, noiseCharactor, noiseWord, unit,
-				confucianFamilyName, combinatorics, charsetName, maxWordLen);
-		return dictionaries;
+        return new FileDictionaries(getDicHome(p),
+                skipPrefix, noiseCharactor, noiseWord, unit,
+                confucianFamilyName, combinatorics, charsetName, maxWordLen);
 	}
 	
 	private static String getUrlPath(URL url){
@@ -465,61 +424,6 @@ public class PaodingMaker {
 
 	private static String getProperty(Properties p, String name) {
 		return Constants.getProperty(p, name);
-	}
-
-	// --------------------------------------------------------------------
-
-	private static class ObjectHolder<T>{
-
-		private ObjectHolder() {
-		}
-
-		private Map<Object, T> objects = new HashMap<Object, T>();
-
-		public T get(Object name) {
-			return objects.get(name);
-		}
-
-		public void set(Object name, T object) {
-			objects.put(name, object);
-		}
-
-		public void remove(Object name) {
-			objects.remove(name);
-		}
-	}
-
-	private static interface Function {
-		public void run() throws Exception;
-	}
-
-	private static String getSystemEnv(String name) {
-		try {
-			return System.getenv(name);
-		} catch (Error error) {
-			String osName = System.getProperty("os.name").toLowerCase();
-			try {
-				String cmd;
-				if (osName.indexOf("win") != -1) {
-					cmd = "cmd /c SET";
-				} else {
-					cmd = "/usr/bin/printenv";
-				}
-				Process process = Runtime.getRuntime().exec(cmd);
-				InputStreamReader isr = new InputStreamReader(process.getInputStream());
-				BufferedReader br = new BufferedReader(isr); 
-				String line;
-				while((line = br.readLine()) != null && line.startsWith(name)) {
-					int index = line.indexOf(name + "=");
-					if (index != -1) {
-						return line.substring(index + name.length() + 1);
-					}
-				}
-			} catch (Exception e) {
-				log.warn("unable to read env from os．" + e.getMessage(), e);
-			}
-		}
-		return null;
 	}
 
 }
