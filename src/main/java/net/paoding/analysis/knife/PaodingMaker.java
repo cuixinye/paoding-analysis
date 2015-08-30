@@ -343,19 +343,6 @@ public class PaodingMaker {
 
 	private static Paoding implMake(final Properties p) {
 
-		// 作为本次返回的Paoding对象在paodingHolder中的key，使之后同样的key不会重复创建Paoding对象
-		final Object paodingKey;
-		// 如果该属性对象是通过PaodingMaker由文件读入的，则必然存在paoding.dic.properties.path属性
-		// 详细请参考loadProperties方法)
-		String path = p.getProperty("paoding.dic.properties.path");
-		// 如果该属性由文件读入，则文件地址作为Paoding对象在paodingHolder中的key
-		if (path != null) {
-			paodingKey = path;
-			// 否则以属性文件作为其key，之后只要进来的是同一个属性对象，都返回同一个Paoding对象
-		} else {
-			paodingKey = p;
-		}
-
         try {
 			//
 			String compilerClassName = getProperty(p,

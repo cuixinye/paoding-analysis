@@ -90,16 +90,16 @@ public class TryPaodingAnalyzer {
 		properties = PaodingMaker.DEFAULT_PROPERTIES_PATH;
 	}
 	
-
+    private static int mode(String mode) {
+        if ("max_length".equals(mode))
+            return PaodingAnalyzer.MAX_WORD_LENGTH_MODE;
+        return PaodingAnalyzer.MOST_WORDS_MODE;
+    }
 	
 	private static void analysing() throws Exception {
 		Analyzer analyzer;
 		if (analyzerName == null || analyzerName.length() == 0 || analyzerName.equalsIgnoreCase("paoding")) {
-			//properties==null等同于new new PaodingAnalyzer();
-			analyzer = new PaodingAnalyzer(properties);
-			if (mode != null) {
-				((PaodingAnalyzer) analyzer).setMode(mode);
-			}
+			analyzer = new PaodingAnalyzer(PaodingMaker.make(properties), mode(mode));
 		}
 		else {
 			Class<?> clz;
