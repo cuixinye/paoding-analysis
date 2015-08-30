@@ -25,6 +25,7 @@ import java.util.jar.JarFile;
 import net.paoding.analysis.Constants;
 import net.paoding.analysis.analyzer.impl.MostWordsModeDictionariesCompiler;
 import net.paoding.analysis.analyzer.impl.SortingDictionariesCompiler;
+import net.paoding.analysis.dictionary.DictionariesCompiler;
 import net.paoding.analysis.exception.PaodingAnalysisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

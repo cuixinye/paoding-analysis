@@ -21,7 +21,7 @@ import net.paoding.analysis.dictionary.support.detection.Snapshot;
 import net.paoding.analysis.knife.Beef;
 import net.paoding.analysis.knife.Collector;
 import net.paoding.analysis.knife.Dictionaries;
-import net.paoding.analysis.knife.DictionariesCompiler;
+import net.paoding.analysis.dictionary.DictionariesCompiler;
 import net.paoding.analysis.knife.Knife;
 
 public class MostWordsModeDictionariesCompiler implements DictionariesCompiler {

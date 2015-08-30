@@ -17,7 +17,7 @@ import net.paoding.analysis.dictionary.Dictionary;
 import net.paoding.analysis.dictionary.Word;
 import net.paoding.analysis.dictionary.support.detection.Snapshot;
 import net.paoding.analysis.knife.Dictionaries;
-import net.paoding.analysis.knife.DictionariesCompiler;
+import net.paoding.analysis.dictionary.DictionariesCompiler;
 import net.paoding.analysis.knife.Knife;
 
 public class SortingDictionariesCompiler implements DictionariesCompiler {

@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.paoding.analysis.knife;
+package net.paoding.analysis.dictionary;
 
 
 import java.util.Properties;
+
+import net.paoding.analysis.knife.Dictionaries;
+import net.paoding.analysis.knife.Knife;
 
 /**
  * 
