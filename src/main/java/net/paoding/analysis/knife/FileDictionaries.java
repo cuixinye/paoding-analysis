@@ -201,39 +201,14 @@ public class FileDictionaries implements Dictionaries {
 
 	protected Word[] getVocabularyWords() {
 		Map<String, Set<Word>> dics = loadAllWordsIfNecessary();
-		Set<Word> set = null;
-		/* 
-		 * 这样写效率更高 Modify: ZhenQin 12-03-13
-		 * 
-		 * 
-		Iterator<String> iter = dics.keySet().iterator();
-		while (iter.hasNext()) {
-			String name = iter.next();
-			if (isSkipForVacabulary(name)) {
-				continue;
-			}
-			Set<Word> dic = dics.get(name);
-			if (set == null) {
-				set = new HashSet<Word>(dic);
-			} else {
-				set.addAll(dic);
-			}
-		}
-		*/
-		Iterator<Map.Entry<String, Set<Word>>> iter = dics.entrySet().iterator();
-		while (iter.hasNext()) {
-			Map.Entry<String, Set<Word>> entry = iter.next();
-			if (isSkipForVacabulary(entry.getKey())) {
-				continue;
-			}
-			Set<Word> dic = entry.getValue();
-			if (set == null) {
-				set = new HashSet<Word>(dic);
-			} else {
-				set.addAll(dic);
-			}
-		}
-		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
+		Set<Word> set = new HashSet<>();
+        for (Map.Entry<String, Set<Word>> entry : dics.entrySet()) {
+            if (isSkipForVacabulary(entry.getKey())) {
+                continue;
+            }
+            set.addAll(entry.getValue());
+        }
+		Word[] words = set.toArray(new Word[set.size()]);
 		Arrays.sort(words);
 		return words;
 	}
@@ -267,7 +242,7 @@ public class FileDictionaries implements Dictionaries {
 			throw toRuntimeException(e);
 		}
 		Set<Word> set = dics.get(dicNameRelativeDicHome);
-		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
+		Word[] words = set.toArray(new Word[set.size()]);
 		Arrays.sort(words);
 		return words;
 	}
